@@ -9,8 +9,8 @@ from sys import argv
 
 def create_parser():
     parser = argparse.ArgumentParser(description="A python script to backup files to the Google Drive.")
-    parser.add_argument("--file", help="The filepath of the file to be uploaded.")
-    parser.add_argument("--updir", help="The google drive directory to upload the file to.")
+    parser.add_argument("-f", "--file", help="The filepath of the file to be uploaded.", required=True)
+    parser.add_argument("-u", "--updir", help="The google drive directory to upload the file to.", required=True)
     return parser
 
 
@@ -28,6 +28,8 @@ def authenticate_drive():
 
 
 def generate_directory_id(drive, path):
+    if path == "root--":
+        return None
     folder_list = drive.ListFile(
             {"q": "title='%s' and mimeType='application/vnd.google-apps.folder' and trashed=false" % path}
     ).GetList()
@@ -44,7 +46,9 @@ def generate_directory_id(drive, path):
 
 
 def backup_file(drive, filename, directory_id):
-    file_to_backup = drive.CreateFile({"title": filename, "parents": [{"id": directory_id}]})
+    file_to_backup = drive.CreateFile({"title": filename})
+    if directory_id is not None:
+        file_to_backup["parents"] = [{"id": directory_id}]
     try:
         file_to_backup.SetContentFile(filename)
     except FileNotFoundError:
@@ -52,12 +56,15 @@ def backup_file(drive, filename, directory_id):
         exit(1)
     file_to_backup.Upload()
     print(f"{colored(f'{filename}', 'blue')} was backed up to ", end="")
-    print(colored(drive.CreateFile({'id': directory_id})['title'], 'green'))
+    if directory_id is not None:
+        print(colored(drive.CreateFile({'id': directory_id})['title'], 'green'))
+    else:
+        print(colored("Root Drive", 'green'))
     print(colored("Backup was successful :)", "cyan"))
 
 
 def main():
-    if argv.__len__() < 1:
+    if argv.__len__() == 1:
         print(f"{colored('Error: ', 'red')}no arguments were given!")
         exit(1)
     subprocess.Popen(
