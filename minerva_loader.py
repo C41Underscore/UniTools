@@ -36,13 +36,27 @@ def login(driver):
     login_button.click()
 
 
+def switch_to_next_window(driver):
+    next_window = driver.window_handles[1]
+    driver.close()
+    driver.switch_to_window(next_window)
+
+
 def navigate_learn(driver, module):
-    pass
+    learn_button = driver.find_element_by_id("Learn")
+    learn_button.click()
+    sleep(1)
+    # module_table = driver.find_element_by_id("vleModules_wrapper")
+    module_search = driver.find_element_by_id("vleModules_filter").find_elements_by_tag_name("input")
+    module_search.send_keys(module)
 
 
 def navigate_to_email(driver):
     email_button = driver.find_element_by_css_selector(".s1-stud-email.hint--bottom-left")
     email_button.click()
+    switch_to_next_window(driver)
+    yes_button = driver.find_element_by_id("idSIButton9")
+    yes_button.click()
     
 
 def navigate_to_library(driver):
@@ -53,9 +67,7 @@ def navigate_to_library(driver):
 def navigate_to_services(driver):
     services_button = driver.find_element_by_css_selector(".s6-stud-ses.hint--bottom")
     services_button.click()
-    service_window = driver.window_handles[1]
-    driver.close()
-    driver.switch_to_window(service_window)
+    switch_to_next_window(driver)
     username_input = driver.find_element_by_id("ssSid")
     username_input.send_keys(config("EMAIL"))
     password_input = driver.find_element_by_id("ssPass")
@@ -78,9 +90,11 @@ def end_loop(driver):
 def main():
     args = create_and_parse_args()
     opts = Options()
-    opts.add_argument("--kiosk")
+    # opts.add_argument("--kiosk")
     driver = Chrome(options=opts)
     driver.get("https://minerva.leeds.ac.uk")
+    driver.set_window_position(0, 0)
+    driver.set_window_size(1920, 1080)
     login(driver)
     if args.page == "Learn":
         learn_tab = driver.find_element_by_id("Learn")
@@ -91,8 +105,6 @@ def main():
         navigate_to_library(driver)
     elif args.page == "Services":
         navigate_to_services(driver)
-    driver.set_window_position(0, 0)
-    driver.set_window_size(1920, 1080)
     end_loop(driver)
 
 
