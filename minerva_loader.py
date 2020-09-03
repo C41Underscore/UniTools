@@ -46,9 +46,13 @@ def navigate_learn(driver, module):
     learn_button = driver.find_element_by_id("Learn")
     learn_button.click()
     sleep(1)
-    # module_table = driver.find_element_by_id("vleModules_wrapper")
-    module_search = driver.find_element_by_id("vleModules_filter").find_elements_by_tag_name("input")
+    if module is None:
+        return
+    module_search = driver.find_element_by_id("vleModules_filter").find_element_by_tag_name("input")
     module_search.send_keys(module)
+    module_result = driver.find_element_by_id("vleModules").find_element_by_css_selector(".odd")
+    sleep(1)
+    module_result.find_element_by_css_selector(".hint--bottom-left").click()
 
 
 def navigate_to_email(driver):
@@ -97,8 +101,7 @@ def main():
     driver.set_window_size(1920, 1080)
     login(driver)
     if args.page == "Learn":
-        learn_tab = driver.find_element_by_id("Learn")
-        learn_tab.click()
+        navigate_learn(driver, args.module)
     elif args.page == "Email":
         navigate_to_email(driver)
     elif args.page == "Library":
