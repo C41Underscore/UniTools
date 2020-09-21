@@ -48,11 +48,14 @@ def navigate_learn(driver, module):
     sleep(1)
     if module is None:
         return
+    module_filter = driver.find_element_by_id("ddlTermFilter")
+    module_filter.click()
+    filter_choices = module_filter.find_elements_by_tag_name("option")
+    filter_choices[0].click()
     module_search = driver.find_element_by_id("vleModules_filter").find_element_by_tag_name("input")
     module_search.send_keys(module)
-    module_result = driver.find_element_by_id("vleModules").find_element_by_css_selector(".odd")
     sleep(1)
-    module_result.find_element_by_css_selector(".hint--bottom-left").click()
+    driver.find_element_by_link_text(module.upper()).click()
 
 
 def navigate_to_email(driver):
@@ -66,6 +69,10 @@ def navigate_to_email(driver):
 def navigate_to_library(driver):
     library_button = driver.find_element_by_css_selector(".s8-stud-lib.hint--bottom")
     library_button.click()
+    switch_to_next_window(driver)
+    sleep(1)
+    login_div = driver.find_element_by_css_selector(".md-button._md-no-style")
+    login_div.find_element_by_tag_name("button").click()
 
 
 def navigate_to_services(driver):
@@ -85,7 +92,6 @@ def end_loop(driver):
         if driver.window_handles.__len__() == 0:
             try:
                 driver.quit()
-                print("driver closed.")
                 exit(0)
             except Exception as e:
                 print(e)
