@@ -100,7 +100,6 @@ def end_loop(driver):
 def main():
     args = create_and_parse_args()
     opts = Options()
-    # opts.add_argument("--kiosk")
     driver = Chrome(options=opts)
     driver.get("https://minerva.leeds.ac.uk")
     driver.set_window_position(0, 0)
